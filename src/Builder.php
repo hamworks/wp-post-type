@@ -7,6 +7,8 @@
 
 namespace HAMWORKS\WP\Post_Type;
 
+use Doctrine\Inflector\InflectorFactory;
+
 /**
  * Post Type Builder.
  */
@@ -48,7 +50,7 @@ class Builder {
 	 * @param string $label name for label.
 	 */
 	public function __construct( $name, $label ) {
-		$this->name = $name;
+		$this->name  = $name;
 		$this->label = $label;
 		$this->set_labels();
 		$this->set_options();
@@ -124,17 +126,22 @@ class Builder {
 	 * @return array
 	 */
 	private function create_options( $args = array() ) {
+		$inflector      = InflectorFactory::create()->build();
+		$singular_slug  = $this->name;
+		$pluralize_slug = $inflector->pluralize( $singular_slug );
+
 		$defaults = array(
 			'public'            => true,
 			'show_ui'           => true,
 			'show_in_rest'      => true,
+			'rest_base'         => $pluralize_slug,
 			'show_in_admin_bar' => true,
 			'menu_position'     => null,
 			'show_in_nav_menus' => true,
 			'has_archive'       => true,
 			'rewrite'           => array(
 				'with_front' => false,
-				'slug'       => $this->name,
+				'slug'       => $pluralize_slug,
 				'walk_dirs'  => false,
 			),
 			'supports'          => array(
@@ -148,11 +155,18 @@ class Builder {
 			),
 		);
 
+		if ( ! empty( $args['rewrite'] ) ) {
+			$args['rewrite'] = array_merge( $defaults['rewrite'], $args['rewrite'] );
+		}
+
+		if ( empty( $args['rewrite']['slug'] ) ) {
+			if ( isset( $args['has_archive'] ) && false === $args['has_archive'] ) {
+				$args['rewrite']['slug'] = $singular_slug;
+			}
+		}
+
 		$args = array_merge( $defaults, $args );
 
-		if ( $args['rewrite'] && empty( $args['rewrite']['walk_dirs'] ) ) {
-			$args['rewrite']['walk_dirs'] = false;
-		}
 
 		return $args;
 	}
