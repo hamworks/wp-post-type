@@ -10,21 +10,21 @@ namespace HAMWORKS\WP\Post_Type;
 /**
  * Post Type Builder.
  */
-class Post_Type {
+class Builder {
 
 	/**
 	 * Post type slug.
 	 *
 	 * @var string
 	 */
-	private $post_type;
+	private $slug;
 
 	/**
 	 * Post type name for readable.
 	 *
 	 * @var string
 	 */
-	private $post_type_name;
+	private $name;
 
 
 	/**
@@ -44,24 +44,20 @@ class Post_Type {
 	/**
 	 * Build Post type.
 	 *
-	 * @param string $post_type      post type name slug.
-	 * @param string $post_type_name name for label.
-	 * @param array  $args           arguments for register_post_type.
+	 * @param string $slug post type name slug.
+	 * @param string $name name for label.
 	 */
-	public function __construct( $post_type, $post_type_name, $args = array() ) {
-		$this->post_type      = $post_type;
-		$this->post_type_name = $post_type_name;
-
-		$labels = ( ! empty( $args['labels'] ) ) ? $args['labels'] : array();
-		$this->set_labels( $labels );
-		$this->set_options( $args );
-		$this->register();
+	public function __construct( $slug, $name ) {
+		$this->slug = $slug;
+		$this->name = $name;
+		$this->set_labels();
+		$this->set_options();
 	}
 
 	/**
 	 * Add hooks.
 	 */
-	private function register() {
+	public function create() {
 		$this->register_post_type();
 		add_action( 'pre_get_posts', array( $this, 'pre_get_posts' ) );
 	}
@@ -72,7 +68,7 @@ class Post_Type {
 	 * @return \WP_Post_Type|null
 	 */
 	public function get_post_type() {
-		return get_post_type_object( $this->post_type );
+		return get_post_type_object( $this->slug );
 	}
 
 	/**
@@ -84,7 +80,6 @@ class Post_Type {
 		$this->labels = $this->create_labels( $args );
 	}
 
-
 	/**
 	 * Create Labels.
 	 *
@@ -92,21 +87,21 @@ class Post_Type {
 	 *
 	 * @return array
 	 */
-	public function create_labels( $args = array() ) {
+	private function create_labels( $args = array() ) {
 		$defaults = array(
-			'name'               => $this->post_type_name,
-			'singular_name'      => $this->post_type_name,
-			'all_items'          => $this->post_type_name . '一覧',
+			'name'               => $this->name,
+			'singular_name'      => $this->name,
+			'all_items'          => $this->name . '一覧',
 			'add_new'            => '新規追加',
-			'add_new_item'       => $this->post_type_name . 'を追加',
-			'edit_item'          => $this->post_type_name . 'を編集',
-			'new_item'           => '新しい' . $this->post_type_name,
-			'view_item'          => $this->post_type_name . 'を表示',
-			'search_items'       => $this->post_type_name . 'を検索',
-			'not_found'          => $this->post_type_name . 'が見つかりませんでした。',
-			'not_found_in_trash' => 'ゴミ箱の中から、' . $this->post_type_name . 'が見つかりませんでした。',
-			'menu_name'          => $this->post_type_name,
-			'archives'           => $this->post_type_name,
+			'add_new_item'       => $this->name . 'を追加',
+			'edit_item'          => $this->name . 'を編集',
+			'new_item'           => '新しい' . $this->name,
+			'view_item'          => $this->name . 'を表示',
+			'search_items'       => $this->name . 'を検索',
+			'not_found'          => $this->name . 'が見つかりませんでした。',
+			'not_found_in_trash' => 'ゴミ箱の中から、' . $this->name . 'が見つかりませんでした。',
+			'menu_name'          => $this->name,
+			'archives'           => $this->name,
 		);
 
 		return array_merge( $defaults, $args );
@@ -117,7 +112,7 @@ class Post_Type {
 	 *
 	 * @param array $args option dictionary.
 	 */
-	public function set_options( $args ) {
+	public function set_options( array $args = array() ) {
 		$this->args = $this->create_options( $args );
 	}
 
@@ -128,7 +123,7 @@ class Post_Type {
 	 *
 	 * @return array
 	 */
-	public function create_options( $args = array() ) {
+	private function create_options( $args = array() ) {
 		$defaults = array(
 			'public'            => true,
 			'show_ui'           => true,
@@ -139,7 +134,7 @@ class Post_Type {
 			'has_archive'       => true,
 			'rewrite'           => array(
 				'with_front' => false,
-				'slug'       => $this->post_type,
+				'slug'       => $this->slug,
 				'walk_dirs'  => false,
 			),
 			'supports'          => array(
@@ -167,7 +162,7 @@ class Post_Type {
 	 */
 	private function register_post_type() {
 		$this->args['labels'] = $this->labels;
-		register_post_type( $this->post_type, $this->args );
+		register_post_type( $this->slug, $this->args );
 	}
 
 
@@ -178,8 +173,8 @@ class Post_Type {
 	 */
 	public function pre_get_posts( \WP_Query $query ) {
 		if ( $query->is_main_query() && is_admin() ) {
-			if ( $query->get( 'post_type' ) === $this->post_type ) {
-				if ( post_type_supports( $this->post_type, 'page-attributes' ) ) {
+			if ( $query->get( 'post_type' ) === $this->slug ) {
+				if ( post_type_supports( $this->slug, 'page-attributes' ) ) {
 					if ( empty( $query->query['order'] ) ) {
 						$query->set( 'order', 'ASC' );
 					}
