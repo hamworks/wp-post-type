@@ -1,31 +1,52 @@
 <?php
+/**
+ * Package for Post Type.
+ *
+ * @package HAMWORKS\WP
+ */
 
 namespace HAMWORKS\WP\Post_Type;
 
 /**
- * Class Post_Type
- *
- * @package HAMWORKS
+ * Post Type Builder.
  */
 class Post_Type {
 
-	/** @var string */
+	/**
+	 * Post type slug.
+	 *
+	 * @var string
+	 */
 	private $post_type;
 
-	/** @var string */
+	/**
+	 * Post type name for readable.
+	 *
+	 * @var string
+	 */
 	private $post_type_name;
 
 
-	/** @var array */
+	/**
+	 * Post type arguments.
+	 *
+	 * @var array
+	 */
 	private $args;
 
-	/** @var array */
+	/**
+	 * Post type labels.
+	 *
+	 * @var array
+	 */
 	private $labels;
 
 	/**
-	 * @param string $post_type post type name slug.
+	 * Build Post type.
+	 *
+	 * @param string $post_type      post type name slug.
 	 * @param string $post_type_name name for label.
-	 * @param array $args
+	 * @param array  $args           arguments for register_post_type.
 	 */
 	public function __construct( $post_type, $post_type_name, $args = array() ) {
 		$this->post_type      = $post_type;
@@ -34,18 +55,20 @@ class Post_Type {
 		$labels = ( ! empty( $args['labels'] ) ) ? $args['labels'] : array();
 		$this->set_labels( $labels );
 		$this->set_options( $args );
-		$this->init();
+		$this->register();
 	}
 
 	/**
 	 * Add hooks.
 	 */
-	public function init() {
+	private function register() {
 		$this->register_post_type();
 		add_action( 'pre_get_posts', array( $this, 'pre_get_posts' ) );
 	}
 
 	/**
+	 * Post type object getter.
+	 *
 	 * @return \WP_Post_Type|null
 	 */
 	public function get_post_type() {
@@ -53,9 +76,9 @@ class Post_Type {
 	}
 
 	/**
-	 * Set Labels.
+	 * Setter Labels.
 	 *
-	 * @param $args
+	 * @param array $args label dictionary.
 	 */
 	public function set_labels( $args = array() ) {
 		$this->labels = $this->create_labels( $args );
@@ -65,7 +88,7 @@ class Post_Type {
 	/**
 	 * Create Labels.
 	 *
-	 * @param array $args
+	 * @param array $args label dictionary.
 	 *
 	 * @return array
 	 */
@@ -90,9 +113,9 @@ class Post_Type {
 	}
 
 	/**
-	 * Set Option.
+	 * Set Options.
 	 *
-	 * @param $args
+	 * @param array $args option dictionary.
 	 */
 	public function set_options( $args ) {
 		$this->args = $this->create_options( $args );
@@ -140,9 +163,9 @@ class Post_Type {
 	}
 
 	/**
-	 * Regiser Post Type.
+	 * Register Post Type.
 	 */
-	public function register_post_type() {
+	private function register_post_type() {
 		$this->args['labels'] = $this->labels;
 		register_post_type( $this->post_type, $this->args );
 	}
@@ -151,11 +174,11 @@ class Post_Type {
 	/**
 	 * Default order to menu_order in admin.
 	 *
-	 * @param \WP_Query $query
+	 * @param \WP_Query $query WP_Query instance.
 	 */
 	public function pre_get_posts( \WP_Query $query ) {
 		if ( $query->is_main_query() && is_admin() ) {
-			if ( $query->get( 'post_type' ) == $this->post_type ) {
+			if ( $query->get( 'post_type' ) === $this->post_type ) {
 				if ( post_type_supports( $this->post_type, 'page-attributes' ) ) {
 					if ( empty( $query->query['order'] ) ) {
 						$query->set( 'order', 'ASC' );
