@@ -17,14 +17,14 @@ class Builder {
 	 *
 	 * @var string
 	 */
-	private $slug;
+	private $name;
 
 	/**
 	 * Post type name for readable.
 	 *
 	 * @var string
 	 */
-	private $name;
+	private $label;
 
 
 	/**
@@ -44,12 +44,12 @@ class Builder {
 	/**
 	 * Build Post type.
 	 *
-	 * @param string $slug post type name slug.
-	 * @param string $name name for label.
+	 * @param string $name post type name slug.
+	 * @param string $label name for label.
 	 */
-	public function __construct( $slug, $name ) {
-		$this->slug = $slug;
+	public function __construct( $name, $label ) {
 		$this->name = $name;
+		$this->label = $label;
 		$this->set_labels();
 		$this->set_options();
 	}
@@ -68,7 +68,7 @@ class Builder {
 	 * @return \WP_Post_Type|null
 	 */
 	public function get_post_type() {
-		return get_post_type_object( $this->slug );
+		return get_post_type_object( $this->name );
 	}
 
 	/**
@@ -89,19 +89,19 @@ class Builder {
 	 */
 	private function create_labels( $args = array() ) {
 		$defaults = array(
-			'name'               => $this->name,
-			'singular_name'      => $this->name,
-			'all_items'          => $this->name . '一覧',
+			'name'               => $this->label,
+			'singular_name'      => $this->label,
+			'all_items'          => $this->label . '一覧',
 			'add_new'            => '新規追加',
-			'add_new_item'       => $this->name . 'を追加',
-			'edit_item'          => $this->name . 'を編集',
-			'new_item'           => '新しい' . $this->name,
-			'view_item'          => $this->name . 'を表示',
-			'search_items'       => $this->name . 'を検索',
-			'not_found'          => $this->name . 'が見つかりませんでした。',
-			'not_found_in_trash' => 'ゴミ箱の中から、' . $this->name . 'が見つかりませんでした。',
-			'menu_name'          => $this->name,
-			'archives'           => $this->name,
+			'add_new_item'       => $this->label . 'を追加',
+			'edit_item'          => $this->label . 'を編集',
+			'new_item'           => '新しい' . $this->label,
+			'view_item'          => $this->label . 'を表示',
+			'search_items'       => $this->label . 'を検索',
+			'not_found'          => $this->label . 'が見つかりませんでした。',
+			'not_found_in_trash' => 'ゴミ箱の中から、' . $this->label . 'が見つかりませんでした。',
+			'menu_name'          => $this->label,
+			'archives'           => $this->label,
 		);
 
 		return array_merge( $defaults, $args );
@@ -134,7 +134,7 @@ class Builder {
 			'has_archive'       => true,
 			'rewrite'           => array(
 				'with_front' => false,
-				'slug'       => $this->slug,
+				'slug'       => $this->name,
 				'walk_dirs'  => false,
 			),
 			'supports'          => array(
@@ -162,7 +162,7 @@ class Builder {
 	 */
 	private function register_post_type() {
 		$this->args['labels'] = $this->labels;
-		register_post_type( $this->slug, $this->args );
+		register_post_type( $this->name, $this->args );
 	}
 
 
@@ -173,8 +173,8 @@ class Builder {
 	 */
 	public function pre_get_posts( \WP_Query $query ) {
 		if ( $query->is_main_query() && is_admin() ) {
-			if ( $query->get( 'post_type' ) === $this->slug ) {
-				if ( post_type_supports( $this->slug, 'page-attributes' ) ) {
+			if ( $query->get( 'post_type' ) === $this->name ) {
+				if ( post_type_supports( $this->name, 'page-attributes' ) ) {
 					if ( empty( $query->query['order'] ) ) {
 						$query->set( 'order', 'ASC' );
 					}
