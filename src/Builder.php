@@ -127,14 +127,14 @@ class Builder {
 	 */
 	private function create_options( $args = array() ) {
 		$inflector      = InflectorFactory::create()->build();
-		$singular_slug  = $this->name;
+		$singular_slug  = $inflector->urlize( $this->name );
 		$pluralize_slug = $inflector->pluralize( $singular_slug );
 
 		$defaults = array(
 			'public'            => true,
 			'show_ui'           => true,
 			'show_in_rest'      => true,
-			'rest_base'         => $inflector->urlize( $pluralize_slug ),
+			'rest_base'         => $pluralize_slug,
 			'show_in_admin_bar' => true,
 			'menu_position'     => null,
 			'show_in_nav_menus' => true,
