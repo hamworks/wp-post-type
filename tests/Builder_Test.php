@@ -20,7 +20,7 @@ class Builder_Test extends \WP_UnitTestCase {
 	 * @test
 	 */
 	public function test_create() {
-		$builder = new Builder( 'book', 'Book' );
+		$builder = new Builder( 'sample_book', 'Book' );
 		$builder->set_options(
 			array(
 				'public'      => true,
@@ -30,9 +30,9 @@ class Builder_Test extends \WP_UnitTestCase {
 		$builder->create();
 
 		$post_type = $builder->get_post_type();
-		$this->assertEquals( 'book', $post_type->name );
+		$this->assertEquals( 'sample_book', $post_type->name );
 		$this->assertEquals( 'Book', $post_type->label );
 		$this->assertEquals( true, $post_type->has_archive );
-		$this->assertEquals( 'books', $post_type->rest_base );
+		$this->assertEquals( 'sample-books', $post_type->rest_base );
 	}
 }
