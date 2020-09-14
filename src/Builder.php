@@ -139,6 +139,7 @@ class Builder {
 			'menu_position'     => null,
 			'show_in_nav_menus' => true,
 			'has_archive'       => true,
+			'hierarchical'      => false,
 			'rewrite'           => array(
 				'with_front' => false,
 				'slug'       => $pluralize_slug,
@@ -167,6 +168,9 @@ class Builder {
 
 		$args = array_merge( $defaults, $args );
 
+		if ( $args['hierarchical'] && ! in_array( 'page-attributes', $args['supports'], true ) ) {
+			$args['supports'][] = 'page-attributes';
+		}
 
 		return $args;
 	}
