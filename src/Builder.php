@@ -131,21 +131,23 @@ class Builder {
 		$pluralize_slug = $inflector->pluralize( $singular_slug );
 
 		$defaults = array(
-			'public'            => true,
-			'show_ui'           => true,
-			'show_in_rest'      => true,
-			'rest_base'         => $pluralize_slug,
-			'show_in_admin_bar' => true,
-			'menu_position'     => null,
-			'show_in_nav_menus' => true,
-			'has_archive'       => true,
-			'hierarchical'      => false,
-			'rewrite'           => array(
+			'public'              => true,
+			'show_ui'             => true,
+			'show_in_rest'        => true,
+			'rest_base'           => $pluralize_slug,
+			'show_in_admin_bar'   => true,
+			'menu_position'       => null,
+			'show_in_nav_menus'   => true,
+			'has_archive'         => true,
+			'hierarchical'        => false,
+			'graphql_single_name' => $singular_slug,
+			'graphql_plural_name' => $pluralize_slug,
+			'rewrite'             => array(
 				'with_front' => false,
 				'slug'       => $pluralize_slug,
 				'walk_dirs'  => false,
 			),
-			'supports'          => array(
+			'supports'            => array(
 				'title',
 				'author',
 				'editor',
