@@ -162,7 +162,7 @@ class Builder {
 			$args['rewrite'] = array_merge( $defaults['rewrite'], $args['rewrite'] );
 		}
 
-		if ( empty( $args['rewrite']['slug'] ) ) {
+		if ( ! empty( $args['rewrite'] ) && empty( $args['rewrite']['slug'] ) ) {
 			if ( isset( $args['has_archive'] ) && false === $args['has_archive'] ) {
 				$args['rewrite']['slug'] = $singular_slug;
 			}
@@ -206,7 +206,4 @@ class Builder {
 			}
 		}
 	}
-
 }
-
-
